@@ -1,0 +1,17 @@
+begin
+int b;
+int c;         
+int e;
+b=2/0;
+c=6;
+e=10;
+for(b=3;;b<c;b=b+1;)
+{
+ while(e>3) do
+{e=e-1;}
+write(b);
+}
+c=c+b;
+d=b+c;
+write(c);
+end

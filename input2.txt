@@ -1,0 +1,17 @@
+begin
+int a;
+int b;
+a=16;
+b=8;
+read(b);//ndief
+while a>b+4)
+do {
+if(a>b )
+then 
+{a=a-b;}
+else 
+{a=a+b;}
+}
+b=b*2;
+write(b);
+end

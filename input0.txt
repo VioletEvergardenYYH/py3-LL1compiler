@@ -1,0 +1,15 @@
+begin
+int b;//dfnse
+int c;         
+
+b=2;
+c=30;
+
+for(b=3;;b<c;b=b+1;)
+{
+
+b=b+1;
+}
+c=c+b;
+write(c);
+end
