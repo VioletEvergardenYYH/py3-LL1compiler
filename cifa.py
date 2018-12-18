@@ -21,10 +21,10 @@ class DFA:
         self.line_number = 0
         self.error_message = []
         self.annotate_message = []
-        self.char_message = []#特殊符号tsfh，关键字gjz，标识符bsf，数字sz
+        self.char_message = []#特殊符号tsfh，关键字gjz，标识符bsf，数字sz，布尔relop
         self.symtable={}
         self.last=' '
-        
+        self.flag=0
     def get_symtable(self):
         i=1
   
@@ -97,11 +97,6 @@ class DFA:
                     elif ch=='!':
                         self.state=42
                     
-                        
-                        
-                        
-                    
-                    
                     elif ch == ';':
                         self.state = 24
                         i -= 1
@@ -113,9 +108,8 @@ class DFA:
                         
                     if (i==line_length) and not(self.last=='begin' or self.last=='end' or self.last=='then' or self.last=='do' or ch=='{' or ch=='}' or self.last=='else'):  #一行中最后的一个单个字符单词不可直接识别
                         print('第',self.line_number,'行缺少;或)或}')
+                        self.flag=1
                         
-                        
-                
                 elif self.state == 1: #判断字母数
                     while ch.isalpha() or ch.isdigit():
                         string += ch
@@ -128,9 +122,9 @@ class DFA:
                     i -= 2 #回退2个字符,回退到即将被归约的末尾字符
                 elif self.state == 2: 
                     if string in self.ResWord:
-                        content = ('gjz',string)
+                        content = ('gjz',string,self.line_number)
                     else:
-                        content = ('bsf',string)
+                        content = ('bsf',string,self.line_number)
                     #print (content)
                     if string !='':
                         self.char_message.append(content)
@@ -149,7 +143,7 @@ class DFA:
                     self.state = 4
                     i -= 2
                 elif self.state == 4:
-                    content = ('sz',string)
+                    content = ('sz',string,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -165,17 +159,17 @@ class DFA:
                         self.state = 8
                         i -= 2
                 elif self.state == 6: #判断++
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 7: #判断+=
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 8: #判断+
-                    content = ('tsfh',ch)
+                    content = ('tsfh',ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -191,17 +185,17 @@ class DFA:
                         self.state = 12
                         i -= 2
                 elif self.state == 10: #判断--
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 11: #判断-=
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 12: #判断-
-                    content = ('tsfh','-')
+                    content = ('tsfh','-',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -214,12 +208,12 @@ class DFA:
                         self.state = 15
                         i -= 2
                 elif self.state == 14: #判断*=
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 15: #判断*
-                    content = ('tsfh',ch)
+                    content = ('tsfh',ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -235,19 +229,19 @@ class DFA:
                         i -= 2
                 elif self.state == 17: #判断//
                     
-                    content = ('zs', line[i:] )
+                    content = ('zs', line[i:],self.line_number )
             
                     self.annotate_message.append(content)
                     i=999
                     self.state=0
                     break
                 elif self.state == 18: #判断/=
-                    content = ('tsfh',string+ch)
+                    content = ('tsfh',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 19: #判断/
-                    content = ('tsfh',ch)
+                    content = ('tsfh',ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -261,12 +255,12 @@ class DFA:
                         i-=2
                         
                 elif self.state==40:  #==
-                    content = ('relop',string+ch)
+                    content = ('relop',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 41:#<
-                    content = ('relop','=')
+                    content = ('relop','=',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -282,14 +276,11 @@ class DFA:
                  
                         
                 elif self.state==43:  #!=
-                    content = ('relop',string+ch)
+                    content = ('relop',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
          
-                    
-                    
-                    
                 elif self.state==21:
                     if ch=='=':
                         self.state=36
@@ -299,19 +290,15 @@ class DFA:
                         i-=2
                         
                 elif self.state==36:  #<=
-                    content = ('relop',string+ch)
+                    content = ('relop',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 37:#<
-                    content = ('relop','<')
+                    content = ('relop','<',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
-                
-                
-                
-                
                 
                 elif self.state==31:
                     if ch=='=':
@@ -322,58 +309,52 @@ class DFA:
                         i-=2
                         
                 elif self.state==38:  #>=
-                    content = ('relop',string+ch)
+                    content = ('relop',string+ch,self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 39:#>
-                    content = ('relop','>')
+                    content = ('relop','>',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                     
-                    
-                    
-                    
                 elif self.state == 22:
-                    content = ('tsfh','{')
+                    content = ('tsfh','{',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 23:
-                    content = ('tsfh','}')
+                    content = ('tsfh','}',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                     
                     
                 elif self.state == 32:
-                    content = ('tsfh','(')
+                    content = ('tsfh','(',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 33:
-                    content = ('tsfh',')')
+                    content = ('tsfh',')',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                  
                 elif self.state == 34:
-                    content = ('tsfh','&')
+                    content = ('tsfh','&',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                 elif self.state == 35:
-                    content = ('tsfh','|')
+                    content = ('tsfh','|',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
                     
-                    
-                    
-                    
                 elif self.state == 24:
-                    content = ('tsfh',';')
+                    content = ('tsfh',';',self.line_number)
                     self.char_message.append(content)
                     string = ''
                     self.state = 0
@@ -388,7 +369,8 @@ class DFA:
                     i -= 1
                 
                 elif self.state == 26: #不可识别字符
-                    content = ( str(self.line_number),  ch )
+                    self.flag=1
+                    content = ('ffzf',  ch,self.line_number )
                     self.error_message.append(content)
                     self.state= 0
                     string = ''
@@ -404,7 +386,7 @@ class DFA:
 
 if __name__ == '__main__':
     try:
-        file_obj = open('input0.txt',encoding='utf-8')
+        file_obj = open('input1.txt',encoding='utf-8')
         dfa = DFA(file_obj)
         dfa.start_convert()     #填满char_message
         dfa.get_symtable()
@@ -419,6 +401,7 @@ if __name__ == '__main__':
         content = dfa.Get_error()
         for item in content:
             print (item)
+        print ("*************初始变量表*************")
         print(dfa.symtable)
 
     finally:
